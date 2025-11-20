@@ -1,0 +1,111 @@
+#!/bin/sh
+# shellcheck disable=SC2086
+# 1.0.1
+
+PHP_CHECK=ON
+COMPOSER_LOCK_CHECK=OFF
+JS_CSS_CHECK=off
+
+# PHP
+php_check() {
+    if [ -x vendor/bin/php-cs-fixer ]; then
+        PHP_CS_FIXER="vendor/bin/php-cs-fixer"
+    elif [ -x /opt/homebrew/bin/php-cs-fixer ]; then
+        PHP_CS_FIXER="/opt/homebrew/bin/php-cs-fixer"
+    else
+        PHP_CS_FIXER="/usr/bin/false"
+    fi
+    if  [ -x $PHP_CS_FIXER ]; then
+        FILES=$(git status --porcelain=2 | grep '^1 M\.' | grep -E '\.php$' | cut -f 9 -d ' ' | tr '\n' ' ')
+        if [ -z "$FILES" ]
+        then
+            echo "No php files found in commit; no need to run php-cs-fixer." >/dev/stderr
+        else
+            echo "${FILES}"
+            for FILE in $FILES; do
+                if [ -f "$FILE" ]; then
+                php -l "$FILE" || exit 1
+                fi
+            done
+            $PHP_CS_FIXER fix --config .php-cs-fixer.dist.php ${FILES} || exit 1
+            git add ${FILES}
+        fi
+    else
+        echo "ERROR: $PHP_CS_FIXER is not available or not executable." >/dev/stderr
+        exit 1
+    fi
+}
+
+# composer.lock
+content_hash_check() {
+    if [ -f composer.lock ]; then
+        if command -v jaq > /dev/null 2>&1; then
+            JQ=jaq
+        elif command -v jq > /dev/null 2>&1; then
+            JQ=jq
+        else
+            JQ=""
+        fi
+        if [ -n "$JQ" ]; then
+            CONTENT_HASH=$($JQ '.["content-hash"]' composer.lock)
+        else
+            CONTENT_HASH=$(grep content-hash composer.lock | sed 's/^.*"content-hash": //')
+        fi
+        if echo "$CONTENT_HASH" | grep 'Auto-merged' > /dev/null 2>&1; then
+            echo "composer.lock content-hash is auto-merged; running composer update --lock" >/dev/stderr
+            composer update --lock
+            git add composer.lock
+        fi
+    fi
+}
+
+# JS & CSS linting
+js_css_linting() {
+    YARN="/opt/homebrew/bin/yarn"
+    if [ -x $YARN ]; then
+        FILES=$(git status --porcelain | grep -E '\.(js|jsx|scss)$' | cut -c 4- | tr '\n' ' ')
+        if [ -z "$FILES" ]
+        then
+            echo "No js|jsx|scss files found in commit; no need to run yarn-lint." >/dev/stderr
+        else
+            cd themes/main || echo 'No theme, exiting.' >/dev/stderr && return
+            if $YARN lint; then
+                cd - || echo 'cannot cd -' >/dev/stderr && exit 1
+            else
+                cd - || echo 'cannot cd -' >/dev/stderr && exit 1
+                exit 1
+            fi
+        fi
+    else
+        echo "ERROR: $YARN is not available or not executable." >/dev/stderr
+        exit 1
+    fi
+}
+
+# Check a variable for yes/no/on/off/1/0 and return true if truthy
+yes_enabled() {
+    case "$1" in
+    [Yy][Ee][Ss]|[Tt][Rr][Uu][Ee]|[Oo][Nn]|1)
+        return 0
+        ;;
+    [Nn][Oo]|[Ff][Aa][Ll][Ss][Ee]|[Oo][Ff][Ff]|0)
+        return 1
+        ;;
+    *)
+        echo "Can't check '$1' for truthiness" >/dev/stderr
+        exit 1
+        ;;
+    esac
+}
+
+# main
+# Just exit if all disabled
+if ! yes_enabled $PHP_CHECK && ! yes_enabled $COMPOSER_LOCK_CHECK && ! yes_enabled $JS_CSS_CHECK; then
+    exit 0
+fi
+
+echo "pre commit hook start" >/dev/stderr
+yes_enabled $PHP_CHECK && php_check
+yes_enabled $COMPOSER_LOCK_CHECK && content_hash_check
+yes_enabled $JS_CSS_CHECK && js_css_linting
+echo "pre commit hook finish" >/dev/stderr

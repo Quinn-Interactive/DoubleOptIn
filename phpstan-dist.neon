@@ -1,12 +1,7 @@
-includes:
-    - phpstan-baseline.neon
 parameters:
-    level: 5
+    level: 8
     treatPhpDocTypesAsCertain: false
-    editorUrl: 'vscode://file/%%file%%:%%line%%'
     editorUrlTitle: '%%relFile%%:%%line%%'
-    ignoreErrors:
-        - "#Can't use keyword 'self'#"
     silverstan:
         disallowMethodCallOnUnsafeDataObject:
             enabled: false
