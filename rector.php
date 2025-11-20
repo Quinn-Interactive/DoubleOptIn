@@ -11,6 +11,17 @@ return RectorConfig::configure()
         __DIR__ . '/src',
         __DIR__ . '/tests/Src',
     ])
+    ->withPreparedSets(
+        deadCode: true,
+        codeQuality: true,
+        codingStyle: false,
+        typeDeclarations: true,
+        typeDeclarationDocblocks: true,
+        privatization: true,
+        naming: false,
+        instanceOf: true,
+        earlyReturn: true,
+    )
     ->withPhpSets(php83: true)
     ->withImportNames(importShortClasses: false)
     ->withSets([
