@@ -9,6 +9,9 @@ use SilverStripe\Core\Config\Configurable;
 use Zazama\DoubleOptIn\Models\EmailVerification;
 use Zazama\DoubleOptIn\Models\UserFormEmailToSend;
 
+/**
+ * @extends \PageController<\Page>
+ */
 class VerificationController extends PageController
 {
 

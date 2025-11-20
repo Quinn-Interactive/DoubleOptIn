@@ -10,7 +10,7 @@ use Zazama\DoubleOptIn\Models\EmailVerification;
 use Zazama\DoubleOptIn\Models\UserFormEmailToSend;
 
 /**
- * @method (UserDefinedFormController & static) getOwner()
+ * @extends Extension<(UserDefinedFormController & static)>
  */
 class UserDefinedFormControllerExtension extends Extension
 {

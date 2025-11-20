@@ -14,7 +14,7 @@ use SilverStripe\UserForms\Model\UserDefinedForm;
  * @property ?string $DoubleOptInSubject
  * @property int $DoubleOptInFieldID
  * @method EditableEmailField DoubleOptInField()
- * @method (UserDefinedForm & static) getOwner()
+ * @extends Extension<(UserDefinedForm & static)>
  */
 class UserDefinedFormExtension extends Extension
 {

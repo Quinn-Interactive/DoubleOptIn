@@ -18,7 +18,7 @@ class EmailSender
 
     public static function send($to, $subject, $body)
     {
-        $from = Config::inst()->get(\Zazama\DoubleOptIn\Services\EmailSender::class, 'email_sender');
+        $from = Config::inst()->get(EmailSender::class, 'email_sender');
         if (!filter_var($from, FILTER_VALIDATE_EMAIL)) {
             user_error('Email sender not valid or not specified in config', E_USER_WARNING);
             return false;

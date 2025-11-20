@@ -5,10 +5,10 @@ namespace Zazama\DoubleOptIn\Models;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Model\ArrayData;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\RandomGenerator;
 use SilverStripe\UserForms\Model\Submission\SubmittedForm;
-use SilverStripe\View\ArrayData;
 use Zazama\DoubleOptIn\Services\EmailSender;
 
 /**
@@ -45,7 +45,7 @@ class EmailVerification extends DataObject
 
     public function generateToken()
     {
-        $generator = new RandomGenerator();
+        $generator = RandomGenerator::create();
         $token = $generator->randomToken('sha512');
         $this->extend('updateGenerateToken', $token);
         return $token;

@@ -9,7 +9,7 @@ use Zazama\DoubleOptIn\Models\EmailVerification;
 /**
  * @property int $EmailVerificationID
  * @method EmailVerification EmailVerification()
- * @method (SubmittedForm & static) getOwner()
+ * @extends Extension<(SubmittedForm & static)>
  */
 class SubmittedFormExtension extends Extension
 {

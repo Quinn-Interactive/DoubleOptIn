@@ -3,11 +3,11 @@
 namespace Zazama\DoubleOptIn\Models;
 
 use SilverStripe\Control\Email\Email;
-use SilverStripe\ORM\ArrayList;
+use SilverStripe\Model\List\ArrayList;
+use SilverStripe\Model\ModelData;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\UserForms\Model\Submission\SubmittedForm;
 use SilverStripe\UserForms\Model\Submission\SubmittedFormField;
-use SilverStripe\View\ViewableData;
 
 /**
  * @property ?string $Email
@@ -47,7 +47,7 @@ class UserFormEmailToSend extends DataObject
         try {
             $email->getData();
         } catch (\Throwable) {
-            $email->setData(ViewableData::create());
+            $email->setData(ModelData::create());
         }
 
         $data = [
