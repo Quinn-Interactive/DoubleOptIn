@@ -18,21 +18,27 @@ use SilverStripe\UserForms\Model\Submission\SubmittedFormField;
  */
 class UserFormEmailToSend extends DataObject
 {
-    private static $db = [
+    /**
+     * @var array<string, string>
+     */
+    private static array $db = [
         'Email'     => 'Text',
         'Recipient' => 'Text',
         'EmailData' => 'Text'
     ];
 
-    private static $has_one = [
+    /**
+     * @var array<string, class-string<SubmittedForm>>
+     */
+    private static array $has_one = [
         'SubmittedForm' => SubmittedForm::class
     ];
 
-    private static $table_name = 'UserFormEmailToSend';
+    private static string $table_name = 'UserFormEmailToSend';
 
-    public function getData()
+    public function getData(): array
     {
-        $email = unserialize($this->Email);
+        $email = unserialize($this->Email ?? '');
         /**
          * Ensure the email's $data field is initialised.
          *
@@ -59,7 +65,7 @@ class UserFormEmailToSend extends DataObject
         ];
         $data['emailData']['Fields'] = [];
         foreach ($data['emailData']['FieldIDs'] as $fieldid) {
-            array_push($data['emailData']['Fields'], SubmittedFormField::get()->byID($fieldid));
+            $data['emailData']['Fields'][] = SubmittedFormField::get()->byID($fieldid);
         }
         foreach ($data['emailData'] as $key => $value) {
             $data['email']->addData($key, $value);
@@ -73,11 +79,14 @@ class UserFormEmailToSend extends DataObject
         return $data;
     }
 
-    public function setData($email, $recipient, $emailData)
+    /**
+     * @param array<string, mixed> $emailData
+     */
+    public function setData($email, $recipient, array $emailData): bool
     {
         $emailData['FieldIDs'] = [];
         foreach ($emailData['Fields'] as $field) {
-            array_push($emailData['FieldIDs'], $field->ID);
+            $emailData['FieldIDs'][] = $field->ID;
         }
         $emailData['Fields'] = null;
         $emailData['Sender'] = null;

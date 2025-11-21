@@ -6,6 +6,7 @@ use Page;
 use PageController;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Config\Configurable;
+use SilverStripe\ORM\FieldType\DBHTMLText;
 use Zazama\DoubleOptIn\Models\EmailVerification;
 use Zazama\DoubleOptIn\Models\UserFormEmailToSend;
 
@@ -19,20 +20,20 @@ class VerificationController extends PageController
     /**
      * @config
      */
-    private static $layout_prefix = 'Zazama\\DoubleOptIn\\Verification';
-    private static $template_holder = Page::class;
+    private static string $layout_prefix = 'Zazama\\DoubleOptIn\\Verification';
+    private static string $template_holder = Page::class;
 
-    public function index(HTTPRequest $request)
+    public function index(HTTPRequest $request): DBHTMLText
     {
         if ($this->getRequest()->getVar('token')) {
             $token = EmailVerification::get()->filter('Token', $this->getRequest()->getVar('token'))->limit(1)[0];
-            if (!$token) {
+            if (!$token instanceof EmailVerification) {
                 $this->badToken();
                 return $this->renderWith([
                     $this->config()->get('layout_prefix') . '_BadToken',
                     Page::class
                 ]);
-            } elseif ($token->Verified) {
+            } elseif ($token instanceof EmailVerification && $token->Verified) {
                 $this->alreadyVerified();
                 return $this->renderWith([
                     $this->config()->get('layout_prefix') . '_AlreadyVerified',
@@ -56,7 +57,7 @@ class VerificationController extends PageController
         }
     }
 
-    public function success($token)
+    public function success($token): void
     {
         $emailsToSend = UserFormEmailToSend::get()->where(['SubmittedFormID' => $token->SubmittedFormID]);
         if ($token->SubmittedFormID && $emailsToSend) {
@@ -84,12 +85,12 @@ class VerificationController extends PageController
         $this->extend('updateSuccess', $token);
     }
 
-    public function badToken()
+    public function badToken(): void
     {
         $this->extend('updateBadToken');
     }
 
-    public function alreadyVerified()
+    public function alreadyVerified(): void
     {
         $this->extend('updateAlreadyVerified');
     }

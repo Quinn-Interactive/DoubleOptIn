@@ -8,11 +8,9 @@ class EmailDummy extends Email
 {
     public function send(): void
     {
-        return;
     }
 
     public function sendPlain(): void
     {
-        return;
     }
 }

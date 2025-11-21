@@ -14,7 +14,10 @@ use Zazama\DoubleOptIn\Models\UserFormEmailToSend;
  */
 class UserDefinedFormControllerExtension extends Extension
 {
-    public function updateEmail(&$email, $recipient, $emailData)
+    /**
+     * @param array<string, mixed> $emailData
+     */
+    public function updateEmail(&$email, $recipient, array $emailData): void
     {
         $referenceField = $emailData['Fields'][0];
         $submittedForm = $referenceField->Parent();

@@ -20,7 +20,7 @@ return RectorConfig::configure()
         privatization: true,
         naming: false,
         instanceOf: true,
-        earlyReturn: true,
+        earlyReturn: false,
     )
     ->withPhpSets(php83: true)
     ->withImportNames(importShortClasses: false)

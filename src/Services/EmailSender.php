@@ -16,7 +16,7 @@ class EmailSender
      */
     private static $email_sender;
 
-    public static function send($to, $subject, $body)
+    public static function send($to, $subject, $body): bool
     {
         $from = Config::inst()->get(EmailSender::class, 'email_sender');
         if (!filter_var($from, FILTER_VALIDATE_EMAIL)) {

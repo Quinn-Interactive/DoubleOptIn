@@ -13,7 +13,10 @@ use Zazama\DoubleOptIn\Models\EmailVerification;
  */
 class SubmittedFormExtension extends Extension
 {
-    private static $has_one = [
+    /**
+     * @var array<string, class-string<EmailVerification>>
+     */
+    private static array $has_one = [
         'EmailVerification' => EmailVerification::class
     ];
 

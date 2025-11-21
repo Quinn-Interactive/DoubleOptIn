@@ -18,12 +18,18 @@ use SilverStripe\UserForms\Model\UserDefinedForm;
  */
 class UserDefinedFormExtension extends Extension
 {
-    private static $db = [
+    /**
+     * @var array<string, string>
+     */
+    private static array $db = [
         'EnableDoubleOptIn'  => 'Boolean(0)',
         'DoubleOptInSubject' => 'Varchar'
     ];
 
-    private static $has_one = [
+    /**
+     * @var array<string, class-string<EditableEmailField>>
+     */
+    private static array $has_one = [
         'DoubleOptInField' => EditableEmailField::class
     ];
 

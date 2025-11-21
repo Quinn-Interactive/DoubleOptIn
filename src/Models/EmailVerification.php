@@ -24,7 +24,10 @@ class EmailVerification extends DataObject
 
     use Configurable;
 
-    private static $db = [
+    /**
+     * @var array<string, string>
+     */
+    private static array $db = [
         'Email'     => 'Varchar(255)',
         'Token'     => 'Varchar(255)',
         'DBStorage' => 'Text',
@@ -33,17 +36,20 @@ class EmailVerification extends DataObject
     /**
      * @config
      */
-    private static $email_template = 'Zazama\\DoubleOptIn\\Email\\Email';
+    private static string $email_template = 'Zazama\\DoubleOptIn\\Email\\Email';
 
-    private static $has_one = [
+    /**
+     * @var array<string, class-string<SubmittedForm>>
+     */
+    private static array $has_one = [
         'SubmittedForm' => SubmittedForm::class
     ];
-    private static $subject = 'Email verification';
+    private static string $subject = 'Email verification';
 
-    private static $table_name = 'EmailVerification';
-    private static $url_segment = 'verify';
+    private static string $table_name = 'EmailVerification';
+    private static string $url_segment = 'verify';
 
-    public function generateToken()
+    public function generateToken(): string
     {
         $generator = RandomGenerator::create();
         $token = $generator->randomToken('sha512');
@@ -67,7 +73,7 @@ class EmailVerification extends DataObject
         return $subject;
     }
 
-    public function init($email, $data = null)
+    public function init($email, $data = null): static
     {
         $this->Email = $email;
         $this->Token = $this->generateToken();
@@ -79,7 +85,7 @@ class EmailVerification extends DataObject
         return $this;
     }
 
-    public function Link()
+    public function Link(): string
     {
         $link = sprintf(
             '%s/%s?token=%s',
@@ -91,7 +97,7 @@ class EmailVerification extends DataObject
         return $link;
     }
 
-    public function send($subject = null)
+    public function send($subject = null): bool
     {
         if (!$subject) {
             $subject = $this->getSubject();
@@ -101,11 +107,10 @@ class EmailVerification extends DataObject
             'Token'   => $this->Token,
             'Storage' => $this->getStorage()
         ]);
-        $sent = EmailSender::send($this->Email, $subject, $data->renderWith($this->config()->get('email_template')));
-        return $sent;
+        return EmailSender::send($this->Email, $subject, $data->renderWith($this->config()->get('email_template')));
     }
 
-    public function setStorage($data)
+    public function setStorage($data): bool
     {
         if ($data) {
             $this->DBStorage = json_encode($data);
@@ -115,22 +120,22 @@ class EmailVerification extends DataObject
         }
     }
 
-    public static function IsAlreadyVerified($token)
+    public static function IsAlreadyVerified($token): bool
     {
-        return (EmailVerification::TokenType($token) == "AlreadyVerified") ? true : false;
+        return EmailVerification::TokenType($token) === "AlreadyVerified";
     }
 
-    public static function IsBadToken($token)
+    public static function IsBadToken($token): bool
     {
-        return (EmailVerification::TokenType($token) == "BadToken") ? true : false;
+        return EmailVerification::TokenType($token) === "BadToken";
     }
 
-    public static function IsSuccess($token)
+    public static function IsSuccess($token): bool
     {
-        return (EmailVerification::TokenType($token) == "Success") ? true : false;
+        return EmailVerification::TokenType($token) === "Success";
     }
 
-    public static function TokenType($token)
+    public static function TokenType($token): string
     {
         if (!$token) {
             return "BadToken";
